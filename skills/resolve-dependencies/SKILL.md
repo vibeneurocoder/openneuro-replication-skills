@@ -1,12 +1,7 @@
 ---
-description: Detect, install, and resolve Python dependencies for neuroscience analyses
-match:
-  - install
-  - dependency
-  - missing package
-  - import error
-  - toolbox
-  - what packages
+name: resolve-dependencies
+description: Detect, install, and resolve Python dependencies for neuroscience analyses — maps MATLAB toolboxes to Python equivalents, checks installed packages, and provides install commands. Use when there are missing packages, import errors, dependency issues, or when the user asks what packages are needed.
+user-invocable: true
 ---
 
 # Dependency Resolution for Neuroscience Analysis
@@ -48,7 +43,7 @@ When a paper mentions a tool/package:
 3. **If MATLAB-only**: Find Python equivalent (see mapping below)
 4. **If no equivalent exists**: Write custom code with numpy/scipy
 
-## MATLAB Toolbox → Python Mapping
+## MATLAB Toolbox to Python Mapping
 
 | MATLAB Toolbox | Python Equivalent | Notes |
 |---------------|-------------------|-------|

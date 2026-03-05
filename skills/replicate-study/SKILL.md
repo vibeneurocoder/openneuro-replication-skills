@@ -1,11 +1,8 @@
 ---
-description: Replicate a neuroscience study from a paper and OpenNeuro dataset
-match:
-  - replicate
-  - replication
-  - reproduce
-  - openneuro
-  - paper methods
+name: replicate-study
+description: Replicate a neuroscience study from a paper and OpenNeuro dataset — load data, preprocess, analyze, and compare results with the original paper. Use when the user wants to replicate, reproduce, or re-run a study analysis.
+user-invocable: true
+argument-hint: "<dataset_id>"
 ---
 
 # Neuroscience Study Replication
@@ -82,9 +79,8 @@ primitives = list_primitives(modality=routing["modality"])
 
 # Build step sequence
 steps = [
-    {"primitive": "load_eeg", "params": {...}, "note": "why"},
-    {"primitive": "bandpass_filter", "params": {...}, "note": "paper used X-Y Hz"},
-    ...
+    {"primitive": "load_eeg", "params": {"..."}, "note": "why"},
+    {"primitive": "bandpass_filter", "params": {"..."}, "note": "paper used X-Y Hz"},
 ]
 
 # Validate
@@ -137,7 +133,7 @@ The project has these modules:
 
 All datasets are public on AWS S3:
 ```bash
-aws s3 sync s3://openneuro.org/{dataset_id}/ ./demo_data/{dataset_id}/ --no-sign-request
+aws s3 sync s3://openneuro.org/{dataset_id}/ ./data/{dataset_id}/ --no-sign-request
 ```
 
 Or use the toolbox:

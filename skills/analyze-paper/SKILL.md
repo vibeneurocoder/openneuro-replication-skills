@@ -1,11 +1,8 @@
 ---
-description: Extract and analyze methods from a neuroscience research paper
-match:
-  - extract methods
-  - read paper
-  - paper methods
-  - what analysis
-  - what did they use
+name: analyze-paper
+description: Extract and analyze complete methodology from a neuroscience research paper — preprocessing pipeline, analysis parameters, statistics, and software used. Use when the user wants to extract methods, read a paper, understand what analysis was done, or asks about paper methods.
+user-invocable: true
+argument-hint: "<paper-path-or-doi>"
 ---
 
 # Paper Methods Extraction
@@ -65,7 +62,7 @@ When the user provides a neuroscience paper (DOI, URL, or PDF), extract the comp
 
 If the paper doesn't specify something, flag it explicitly:
 - "Filter settings not specified — need to check supplementary or cited methods paper"
-- "Artifact threshold not mentioned — common default is ±100 µV for EEG"
+- "Artifact threshold not mentioned — common default is +/-100 uV for EEG"
 - "Channel selection unclear — paper says 'posterior electrodes' without listing them"
 
 ## Software-to-Python Mapping
@@ -93,10 +90,10 @@ Present extracted methods as a structured summary:
 MODALITY: EEG (64 channels, BioSemi, 512 Hz)
 SUBJECTS: 24 (12F, age 18-35)
 TASK: Visual oddball (faces vs houses vs scrambled)
-PREPROCESSING: 0.1-30 Hz bandpass → average reference → epoch -200 to 800ms → baseline -200 to 0ms → ±100 µV rejection
+PREPROCESSING: 0.1-30 Hz bandpass → average reference → epoch -200 to 800ms → baseline -200 to 0ms → +/-100 uV rejection
 ANALYSIS: N170 peak amplitude at P7/P8 (140-200ms)
-STATISTICS: 2×3 repeated-measures ANOVA (hemisphere × condition), Greenhouse-Geisser corrected
-KEY RESULTS: N170 faces > houses, F(2,46)=15.3, p<.001, η²=0.40
+STATISTICS: 2x3 repeated-measures ANOVA (hemisphere x condition), Greenhouse-Geisser corrected
+KEY RESULTS: N170 faces > houses, F(2,46)=15.3, p<.001, eta-squared=0.40
 ```
 
 Then list gaps that need user input.

@@ -1,11 +1,8 @@
 ---
-description: Set up a complete replication study — download data, create folders, extract pipeline from paper, generate methods documentation
-match:
-  - setup replication
-  - setup study
-  - new replication
-  - prepare replication
-  - setup openneuro
+name: setup-replication
+description: Set up a complete neuroscience replication study from an OpenNeuro dataset — download data, create folders, extract analysis pipeline from paper, generate config and documentation. Use when setting up a new replication, preparing a new study, or when the user mentions setup, new replication, or prepare replication.
+user-invocable: true
+argument-hint: "<dataset_id> [--demo] [--paper <path-or-doi>]"
 ---
 
 # Setup Replication Study
@@ -15,7 +12,7 @@ You are setting up a new neuroscience replication study. This is the **first ste
 ## Step 1: Parse Input
 
 The user should provide:
-- **`dataset_id`** (required): An OpenNeuro dataset ID like `ds003645`, `ds000105`, `ds003061`
+- **`dataset_id`** (required): An OpenNeuro dataset ID like `ds003645`, `ds000105`, `ds003061`. Use `$ARGUMENTS` if provided.
 - **`paper_source`** (optional): A DOI, URL, or path to a PDF of the original paper
 - **`--demo`** (optional flag): If present, download only 2 subjects into `demo_data/` instead of all subjects into `data/`. Use for quick testing and pipeline validation before committing to a full download.
 
@@ -151,8 +148,8 @@ Write a `configs/dataset_info.json` with what was discovered:
   "dataset_id": "dsXXXXXX",
   "data_dir": "data/dsXXXXXX",
   "n_subjects": N,
-  "subjects_downloaded": ["sub-001", ...],
-  "subjects_total": ["sub-001", ...],
+  "subjects_downloaded": ["sub-001", "..."],
+  "subjects_total": ["sub-001", "..."],
   "modality": "eeg|fmri|meg",
   "file_format": ".set|.nii.gz|...",
   "runs_per_subject": N,
@@ -260,7 +257,7 @@ Number each step. For each, record the exact parameters:
 - Effect size measure
 
 **Key Findings (to replicate):**
-- Main effects with exact statistics (t, F, p, d, η²)
+- Main effects with exact statistics (t, F, p, d, eta-squared)
 - Direction of effects
 
 **Software & Cited Methods:**
@@ -429,7 +426,7 @@ analysis:
   preprocessing:
     filter_lowcut: {highpass Hz}
     filter_highcut: {lowpass Hz}
-    artifact_threshold: {µV threshold}
+    artifact_threshold: {uV threshold}
     baseline: [{start_s}, {end_s}]
     epoch_window: [{start_s}, {end_s}]
   erp:  # if ERP study
@@ -465,20 +462,20 @@ Dataset:
   Location: {data/ or demo_data/}{dataset_id}/
   Subjects: N downloaded / N total
   Modality: EEG/fMRI
-  Status: ✓ validated
+  Status: validated
 
 Paper Pipeline:
-  extracted_pipeline.md: ✓ written
-  required_references.md: ✓ written
-  Config YAML: ✓ written
+  extracted_pipeline.md: written
+  required_references.md: written
+  Config YAML: written
 
 Gaps to Fill:
   - {critical gap 1}
   - {critical gap 2}
 
 Additional References Needed:
-  - {reference 1}: {why} → place in references/
-  - {reference 2}: {why} → place in references/
+  - {reference 1}: {why}
+  - {reference 2}: {why}
 
 Next Steps:
   1. Review extracted_pipeline.md for accuracy
@@ -489,8 +486,8 @@ Next Steps:
 
 If in **demo mode**, also append:
 ```
-⚠ DEMO MODE: Only 2 subjects downloaded to demo_data/.
-   For full replication, re-run without --demo to download all N subjects to data/.
+DEMO MODE: Only 2 subjects downloaded to demo_data/.
+For full replication, re-run without --demo to download all N subjects to data/.
 ```
 
 ---

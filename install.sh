@@ -31,13 +31,13 @@ echo "  Target: $SKILLS_DIR"
 echo ""
 
 INSTALLED=0
-for skill in "$SKILLS_SRC"/*.md; do
-    name=$(basename "$skill")
-    if [ -f "$SKILLS_DIR/$name" ]; then
-        echo "  [SKIP] $name (already exists — remove it first to update)"
+for skill_dir in "$SKILLS_SRC"/*/; do
+    name=$(basename "$skill_dir")
+    if [ -d "$SKILLS_DIR/$name" ]; then
+        echo "  [SKIP] $name/ (already exists — remove it first to update)"
     else
-        cp "$skill" "$SKILLS_DIR/$name"
-        echo "  [OK]   $name"
+        cp -r "$skill_dir" "$SKILLS_DIR/$name"
+        echo "  [OK]   $name/"
         INSTALLED=$((INSTALLED + 1))
     fi
 done
@@ -46,10 +46,10 @@ echo ""
 echo "Installed $INSTALLED skill(s) to $SKILLS_DIR"
 echo ""
 echo "Usage in Claude Code:"
-echo "  > setup replication ds003645"
-echo "  > read paper path/to/paper.pdf"
-echo "  > replicate study ds003645"
-echo "  > what packages do I need?"
+echo "  > /setup-replication ds003645"
+echo "  > /analyze-paper path/to/paper.pdf"
+echo "  > /replicate-study ds003645"
+echo "  > /resolve-dependencies"
 echo ""
 echo "Prerequisites:"
 echo "  pip install numpy scipy matplotlib pandas mne awscli"
