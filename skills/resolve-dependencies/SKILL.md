@@ -1,7 +1,6 @@
 ---
 name: resolve-dependencies
-description: Detect, install, and resolve Python dependencies for neuroscience analyses — maps MATLAB toolboxes to Python equivalents, checks installed packages, and provides install commands. Use when there are missing packages, import errors, dependency issues, or when the user asks what packages are needed.
-user-invocable: true
+description: Detects, installs, and resolves Python dependencies for neuroscience analyses — maps MATLAB toolboxes to Python equivalents, checks installed packages, and provides install commands. Use when there are missing packages, import errors, dependency issues, or when the user asks what packages are needed.
 ---
 
 # Dependency Resolution for Neuroscience Analysis

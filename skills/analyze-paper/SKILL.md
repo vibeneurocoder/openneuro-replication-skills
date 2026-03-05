@@ -1,8 +1,7 @@
 ---
 name: analyze-paper
-description: Extract and analyze complete methodology from a neuroscience research paper — preprocessing pipeline, analysis parameters, statistics, and software used. Use when the user wants to extract methods, read a paper, understand what analysis was done, or asks about paper methods.
-user-invocable: true
-argument-hint: "<paper-path-or-doi>"
+description: Extracts and analyzes complete methodology from a neuroscience research paper — preprocessing pipeline, analysis parameters, statistics, and software used. Use when the user wants to extract methods, read a paper, understand what analysis was done, or asks about paper methods.
+argument-hint: "[paper-path-or-doi]"
 ---
 
 # Paper Methods Extraction

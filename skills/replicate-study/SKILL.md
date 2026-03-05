@@ -1,8 +1,7 @@
 ---
 name: replicate-study
-description: Replicate a neuroscience study from a paper and OpenNeuro dataset — load data, preprocess, analyze, and compare results with the original paper. Use when the user wants to replicate, reproduce, or re-run a study analysis.
-user-invocable: true
-argument-hint: "<dataset_id>"
+description: Replicates a neuroscience study from a paper and OpenNeuro dataset — loads data, preprocesses, analyzes, and compares results with the original paper. Use when the user wants to replicate, reproduce, or re-run a study analysis.
+argument-hint: "[dataset_id]"
 ---
 
 # Neuroscience Study Replication
