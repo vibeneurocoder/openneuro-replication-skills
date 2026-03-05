@@ -1,4 +1,4 @@
-# Neuroscience Replication Skills for Claude Code
+# OpenNeuro Replication Skills for Claude Code
 
 A set of Claude Code skills that automate neuroscience study replication workflows. These skills guide Claude through downloading OpenNeuro datasets, extracting analysis pipelines from papers, generating documentation, and running replications.
 
@@ -45,7 +45,7 @@ A set of Claude Code skills that automate neuroscience study replication workflo
 
 ```bash
 # Clone this repo
-git clone https://github.com/YOUR_USERNAME/neuroscience-replication-skills.git
+git clone https://github.com/vibeneurocoder/openneuro-replication-skills.git
 
 # Copy skills into your project
 cp -r neuroscience-replication-skills/skills/ YOUR_PROJECT/.claude/skills/
@@ -55,14 +55,14 @@ cp -r neuroscience-replication-skills/skills/ YOUR_PROJECT/.claude/skills/
 
 ```bash
 # From your project root
-mkdir -p .claude/skills && curl -sL https://github.com/YOUR_USERNAME/neuroscience-replication-skills/archive/main.tar.gz | tar xz --strip-components=2 -C .claude/skills/ "*/skills/"
+mkdir -p .claude/skills && curl -sL https://github.com/vibeneurocoder/openneuro-replication-skills/archive/main.tar.gz | tar xz --strip-components=2 -C .claude/skills/ "*/skills/"
 ```
 
 ### Install Script
 
 ```bash
 # Clone and run the installer
-git clone https://github.com/YOUR_USERNAME/neuroscience-replication-skills.git
+git clone https://github.com/vibeneurocoder/openneuro-replication-skills.git
 cd neuroscience-replication-skills
 bash install.sh /path/to/your/project
 ```
@@ -249,6 +249,7 @@ See the `examples/` directory for full execution logs:
 - **[demo_setup_ds003645.md](examples/demo_setup_ds003645.md)** — EEG warm test with local PDF (Kappenman et al. 2021 ERP CORE, N170 face perception)
 - **[demo_setup_ds004621.md](examples/demo_setup_ds004621.md)** — EEG cold test on unknown dataset (Dzianok et al. 2022 Nencki-Symfonia, P300 auditory oddball)
 - **[demo_setup_ds000105.md](examples/demo_setup_ds000105.md)** — fMRI test in isolated folder (Haxby et al. 2001, MVPA object recognition)
+- **[demo_setup_ds006480.md](examples/demo_setup_ds006480.md)** — EEG EGI HydroCel test (Kim et al. 2025, P300 oddball under arousal)
 
 Key findings from testing:
 - The skill handled a completely unknown dataset with zero prior codebase references
@@ -263,7 +264,8 @@ Key findings from testing:
 | Paradigm | Example Dataset | Status |
 |----------|----------------|--------|
 | N170 (face perception) | ds003645, ds000117 | Tested |
-| P300 (auditory oddball) | ds004621, ds003061 | Tested |
+| P300 (auditory oddball) | ds004621, ds003061, ds006480 | Tested |
+| P300 under arousal | ds006480 (EGI HydroCel) | Tested (setup) |
 | MMN (mismatch negativity) | ds003645 (MMN task) | Planned |
 | fMRI MVPA | ds000105 | Tested (setup) |
 

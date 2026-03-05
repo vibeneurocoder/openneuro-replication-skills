@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install neuroscience replication skills into a Claude Code project
+# Install OpenNeuro replication skills into a Claude Code project
 #
 # Usage:
 #   bash install.sh /path/to/your/project
@@ -25,7 +25,7 @@ if [ ! -d "$SKILLS_SRC" ]; then
     exit 1
 fi
 
-echo "Installing neuroscience replication skills..."
+echo "Installing OpenNeuro replication skills..."
 echo "  Source: $SKILLS_SRC"
 echo "  Target: $SKILLS_DIR"
 echo ""
