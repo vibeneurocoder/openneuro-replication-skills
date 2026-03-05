@@ -48,7 +48,7 @@ A set of Claude Code skills that automate neuroscience study replication workflo
 git clone https://github.com/vibeneurocoder/openneuro-replication-skills.git
 
 # Copy skills into your project
-cp -r neuroscience-replication-skills/skills/ YOUR_PROJECT/.claude/skills/
+cp -r openneuro-replication-skills/skills/ YOUR_PROJECT/.claude/skills/
 ```
 
 ### One-liner
@@ -244,20 +244,7 @@ The key asset is the **structured methodology extraction template** (Step 5 of s
 
 ## Examples
 
-See the `examples/` directory for full execution logs:
-
-- **[demo_setup_ds003645.md](examples/demo_setup_ds003645.md)** — EEG warm test with local PDF (Kappenman et al. 2021 ERP CORE, N170 face perception)
-- **[demo_setup_ds004621.md](examples/demo_setup_ds004621.md)** — EEG cold test on unknown dataset (Dzianok et al. 2022 Nencki-Symfonia, P300 auditory oddball)
-- **[demo_setup_ds000105.md](examples/demo_setup_ds000105.md)** — fMRI test in isolated folder (Haxby et al. 2001, MVPA object recognition)
-- **[demo_setup_ds006480.md](examples/demo_setup_ds006480.md)** — EEG EGI HydroCel test (Kim et al. 2025, P300 oddball under arousal)
-
-Key findings from testing:
-- The skill handled a completely unknown dataset with zero prior codebase references
-- WebFetch worked as paper source when no PDF was available
-- New file formats (BrainVision .vhdr) were correctly identified as gaps
-- Event code mapping from BIDS events.tsv worked correctly
-- fMRI datasets (NIfTI .nii.gz) worked — skill correctly identified the entire fMRI module as missing
-- Install script (`install.sh`) worked in an isolated subfolder
+See the [`examples/`](examples/) directory for full execution logs covering EEG and fMRI datasets.
 
 ## Supported Paradigms & Datasets
 
