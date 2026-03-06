@@ -33,14 +33,44 @@ Check: `python3 -c "import numpy, scipy, matplotlib, pandas, mne; print('Core OK
 | ICA (extended) | mne, picard | `pip install mne python-picard` |
 | Phase-amplitude coupling | pactools or tensorpac | `pip install pactools` |
 
+## Virtual Environment Setup
+
+**Before installing any packages**, ensure a proper Python virtual environment is active.
+
+### Step 1: Check for active virtual environment
+
+Run: `python3 -c "import sys; print(sys.prefix)"`
+
+- If inside a venv/conda env already, confirm with the user: *"You have an active environment at `<path>`. Should I install dependencies here?"*
+- If **no** virtual environment is active (sys.prefix == sys.base_prefix), proceed to Step 2.
+
+### Step 2: Ask the user which environment to use
+
+Present these options:
+
+1. **Create a new virtual environment** in the project directory (`python3 -m venv .venv` then `source .venv/bin/activate`)
+2. **Use an existing conda environment** — ask which one (`conda activate <name>`)
+3. **Use an existing venv** — ask for the path (`source /path/to/venv/bin/activate`)
+4. **Install globally** (not recommended) — warn about system-wide side effects
+
+Wait for the user's choice before proceeding. Do NOT install packages into the system Python without explicit confirmation.
+
+### Step 3: Activate and verify
+
+After creating or selecting an environment:
+- Activate it in the current shell session
+- Verify: `python3 -c "import sys; print('Environment:', sys.prefix)"`
+- Then proceed with dependency installation below
+
 ## Resolution Strategy
 
 When a paper mentions a tool/package:
 
-1. **Check if installed**: `python3 -c "import X"`
-2. **If not installed**: Tell the user the exact pip command
-3. **If MATLAB-only**: Find Python equivalent (see mapping below)
-4. **If no equivalent exists**: Write custom code with numpy/scipy
+1. **Ensure virtual environment is active** (see above)
+2. **Check if installed**: `python3 -c "import X"`
+3. **If not installed**: Tell the user the exact pip command
+4. **If MATLAB-only**: Find Python equivalent (see mapping below)
+5. **If no equivalent exists**: Write custom code with numpy/scipy
 
 ## MATLAB Toolbox to Python Mapping
 
