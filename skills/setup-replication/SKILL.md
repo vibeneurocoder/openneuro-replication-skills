@@ -70,7 +70,7 @@ done
 
 ### 3d: Save dataset_info.json
 
-Write to `replications/${DATASET_ID}/configs/dataset_info.json`. See [templates.md](templates.md) for the JSON template.
+Write to `replications/${DATASET_ID}/configs/dataset_info.json`. See [templates.md](assets/templates.md) for the JSON template.
 
 ---
 
@@ -79,7 +79,7 @@ Write to `replications/${DATASET_ID}/configs/dataset_info.json`. See [templates.
 1. Check `replications/{dataset_id}/references/` for existing PDFs
 2. If `--paper` is a PDF path: read it directly (Step 5)
 3. If `--paper` is a DOI/URL: ask user to download and place PDF in `references/`
-4. If no paper: look up known dataset-paper mapping in [reference.md](reference.md), tell user what to download
+4. If no paper: look up known dataset-paper mapping in [toolbox-capabilities.md](references/toolbox-capabilities.md), tell user what to download
 
 ---
 
@@ -106,19 +106,19 @@ Check for mismatches between paper and dataset (channels, sampling rate, conditi
 
 ### 6a: Write `extracted_pipeline.md`
 
-Write to `replications/{dataset_id}/references/methods/extracted_pipeline.md`. Use the template in [templates.md](templates.md). Include all sections: participants, stimuli, recording, preprocessing steps, analysis, statistics, findings, gap comparison table.
+Write to `replications/{dataset_id}/references/methods/extracted_pipeline.md`. Use the template in [templates.md](assets/templates.md). Include all sections: participants, stimuli, recording, preprocessing steps, analysis, statistics, findings, gap comparison table.
 
 ### 6b: Write `required_references.md`
 
-Write to `replications/{dataset_id}/references/methods/required_references.md`. Use the template in [templates.md](templates.md). Include: required papers, required software, implementation gap analysis (what we have vs what we need), Python packages table.
+Write to `replications/{dataset_id}/references/methods/required_references.md`. Use the template in [templates.md](assets/templates.md). Include: required papers, required software, implementation gap analysis (what we have vs what we need), Python packages table.
 
-Use the toolbox capability reference in [reference.md](reference.md) for the gap analysis.
+Use the toolbox capability reference in [toolbox-capabilities.md](references/toolbox-capabilities.md) for the gap analysis.
 
 ---
 
 ## Step 7: Build Initial Config
 
-Generate `replications/{dataset_id}/configs/{dataset_id}_replication.yaml` from extracted parameters. See YAML template in [templates.md](templates.md).
+Generate `replications/{dataset_id}/configs/{dataset_id}_replication.yaml` from extracted parameters. See YAML template in [templates.md](assets/templates.md).
 
 ---
 
