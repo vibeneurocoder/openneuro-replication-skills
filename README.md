@@ -11,80 +11,51 @@ A set of [Claude Code skills](https://docs.anthropic.com/en/docs/claude-code) th
 | **analyze-paper** | `/analyze-paper paper.pdf` | Extract complete methodology from a paper (DOI, URL, or PDF) into structured format |
 | **resolve-dependencies** | `/resolve-dependencies` | Detect, install, and resolve Python dependencies for neuroscience analyses |
 
-## Required Skills Together
+## How It Works — Self-Contained with Optional Companions
 
-A full replication needs three skill layers working together. Install all three for the complete workflow.
+**These skills work standalone.** All methodology (planning, verification, visualization, debugging) is written directly into the skill files — no other skills are required.
 
-### Layer 1: Core Replication (this repo — required)
+The practices were originally learned from two companion skill collections. We integrated the best parts into the replication skills so you don't need to install them separately. But if you want the full reference materials, you can optionally install the originals:
 
-These four skills orchestrate the entire replication pipeline:
+### Optional: Academic-Forge (workflow methodology)
 
-| Skill | Stage | What It Does |
-|-------|-------|--------------|
-| `setup-replication` | 1. Setup | Creates folders, planning files, downloads data, extracts pipeline, generates configs |
-| `analyze-paper` | 2. Extraction | Reads PDF, extracts exact preprocessing/analysis/statistics parameters |
-| `resolve-dependencies` | 3. Environment | Installs Python packages (pingouin, seaborn, statsmodels, mne, scipy) |
-| `replicate-study` | 4. Execution | Runs full analysis with verification checkpoints, pub figures, paper comparison |
+By [@HughYau](https://github.com/HughYau/AcademicForge) — a collection of workflow skills that bundles contributions from multiple authors:
+- **superpowers** (by [@obra](https://github.com/obra/superpowers)) — verification-before-completion, systematic-debugging, executing-plans
+- **planning-with-files** (by [@OthmanAdi](https://github.com/OthmanAdi/planning-with-files)) — file-based planning with task_plan.md
+- **scientific-visualization** — publication figure standards
+- **AI-research-SKILLs** (by [@zechenzhangAGI](https://github.com/zechenzhangAGI/AI-research-SKILLs) / Orchestra Research) — research workflow skills
+- **claude-scientific-skills** (by [K-Dense-AI](https://github.com/K-Dense-AI/claude-scientific-skills)) — 140+ scientific domain skills
 
-### Layer 2: Workflow & Quality (academic-forge — recommended)
-
-These companion skills from [`academic-forge`](https://github.com/anthropics/courses/tree/master/claude-code/skills) provide the methodology that the replication skills build on:
-
-| Skill | Used By | Why Needed |
-|-------|---------|------------|
-| **writing-plans** | `setup-replication` | File-based planning methodology (`task_plan.md`, `findings.md`, `progress.md`) |
-| **verification-before-completion** | `replicate-study` | No completion claims without running evidence — prevents false positives |
-| **scientific-visualization** | `replicate-study` | Okabe-Ito colorblind-safe palette, 300 DPI, multi-panel figure standards |
-| **systematic-debugging** | `replicate-study` | Root-cause analysis when results diverge from paper (not guessing) |
-| **executing-plans** | `replicate-study` | Task-by-task execution with checkpoints |
-
-> The core replication skills have these practices **baked in** — you don't invoke them separately. But having the academic-forge skills installed gives Claude the full reference when it needs deeper guidance on any aspect.
-
-### Layer 3: Domain API Reference (neuroforge-skills — optional)
-
-These provide library-specific API documentation for the neuroscience packages used in replications:
-
-| Skill | When Needed |
-|-------|-------------|
-| **mne-python** | EEG/MEG preprocessing, epoching, filtering, source localization |
-| **nilearn** | fMRI studies — GLM, MVPA, ROI analysis, brain plotting |
-| **spikeinterface** | Extracellular electrophysiology / spike sorting |
-| **brian2** | Computational neuroscience simulations |
-| **pynibs** | Brain stimulation (TMS/NIBS) studies |
-
-### Installation — All Three Layers
+What's baked into our skills from academic-forge:
+| Practice | Where It's Used | What It Does |
+|----------|----------------|--------------|
+| File-based planning | `setup-replication` Step 2b | Creates `task_plan.md`, `findings.md`, `progress.md` |
+| Verification-before-completion | `setup-replication` Step 8, `replicate-study` Step 6a | No completion claims without running evidence |
+| Scientific visualization | `replicate-study` Step 5b | Okabe-Ito palette, 300 DPI, multi-panel figures |
+| Systematic debugging | `replicate-study` Step 6c | Root-cause analysis for result discrepancies |
 
 ```bash
-# Layer 1: Core replication skills (required)
-git clone https://github.com/vibeneurocoder/openneuro-replication-skills.git
-cp -r openneuro-replication-skills/skills/* YOUR_PROJECT/.claude/skills/
-
-# Layer 2: Academic-forge workflow skills (recommended)
-# Install from .opencode/skills/academic-forge/ — provides writing-plans,
-# verification-before-completion, scientific-visualization, systematic-debugging
-
-# Layer 3: Neuroforge domain skills (optional, as needed)
-# Install mne-python, nilearn, etc. skills for API reference
+# Optional: install for full reference docs
+git clone https://github.com/HughYau/AcademicForge.git
 ```
 
-### Workflow — How They Connect
+### Optional: NeuroForge Skills (domain API reference)
 
-```
-/setup-replication ds003645 --paper references/paper.pdf
-│
-├─ Layer 1: setup-replication creates folders, downloads data
-├─ Layer 2: writing-plans → creates task_plan.md, findings.md, progress.md
-├─ Layer 1: analyze-paper → extracts pipeline from PDF
-└─ Layer 1: resolve-dependencies → installs pingouin, seaborn, etc.
+By [@HughYau](https://github.com/HughYau/neuroforge-skills) — neuroscience library API documentation built with the [OpenSci-Skill](https://github.com/HughYau/opensci-skill) framework:
 
-/replicate-study ds003645
-│
-├─ Layer 1: replicate-study runs preprocessing + analysis
-├─ Layer 3: mne-python / scipy API reference (as needed)
-├─ Layer 2: scientific-visualization → Okabe-Ito, 300 DPI, multi-panel
-├─ Layer 2: verification-before-completion → checkpoints at each stage
-├─ Layer 2: systematic-debugging → if results diverge from paper
-└─ Layer 1: generates replication report + updates findings.md
+| Skill | Library |
+|-------|---------|
+| **mne-python** | EEG/MEG preprocessing, epoching, filtering, source localization |
+| **nilearn** | fMRI — GLM, MVPA, ROI analysis, brain plotting |
+| **spikeinterface** | Extracellular electrophysiology / spike sorting |
+| **brian2** | Spiking neural network simulations |
+| **pynibs** | Non-invasive brain stimulation (TMS/NIBS) |
+
+These provide detailed API docs that Claude can reference when writing analysis code. Not required — Claude already knows these libraries from training, but the skills give more accurate, up-to-date API details.
+
+```bash
+# Optional: install for API reference
+git clone https://github.com/HughYau/neuroforge-skills.git
 ```
 
 ## Installation
