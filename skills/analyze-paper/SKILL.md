@@ -96,3 +96,21 @@ KEY RESULTS: N170 faces > houses, F(2,46)=15.3, p<.001, eta-squared=0.40
 ```
 
 Then list gaps that need user input.
+
+## Update Planning Files
+
+After extraction, update:
+- **`findings.md`** — Record paper reference values (exact statistics, N, effect sizes)
+- **`task_plan.md`** — Mark paper extraction phase as complete
+- **`progress.md`** — Log what was extracted and any ambiguities
+
+## Key Extraction Tips (from practice)
+
+1. **Check for timing delays**: Some datasets have known delays between trigger and stimulus onset (e.g., ds003645 has 34ms MEG trigger delay — check if it applies to EEG)
+2. **Channel naming**: Generic labels (EEG001-EEG075) may not match standard 10-20 names. Check dataset documentation for mapping.
+3. **EOG/ECG channels**: Often embedded in the EEG channel array. Common patterns:
+   - EEG061=HEOG, EEG062=VEOG, EEG063=ECG (ds003645)
+   - Check `*_channels.tsv` in BIDS datasets for channel types
+4. **Subject exclusions**: Papers often use a subset (e.g., 16 of 19). Note which subjects and why.
+5. **Event labeling**: BIDS events in `*_events.tsv` may use different labels than the paper. Map them explicitly.
+6. **Preprocessing order matters**: The exact sequence (e.g., epoch THEN filter THEN trim vs filter THEN epoch) affects results.

@@ -104,14 +104,23 @@ dataset:
   id: {dataset_id}
   subjects: [sub-001, ...]  # or null for all
   runs: [1, 2, ...]  # or null for all
+  exclude_subjects: []  # e.g., [sub-emptyroom]
 analysis:
   type: erp|glm|mvpa|connectivity
   preprocessing:
-    filter_lowcut: {highpass Hz}
+    filter_lowcut: {highpass Hz or null}
     filter_highcut: {lowpass Hz}
+    filter_order: 5  # Butterworth order
     artifact_threshold: {uV threshold}
+    artifact_channels: [HEOG_idx, VEOG_idx]  # channel indices for EOG rejection
     baseline: [{start_s}, {end_s}]
     epoch_window: [{start_s}, {end_s}]
+    epoch_trim: [{trim_start_s}, {trim_end_s}]  # optional: trim after filtering
+    bad_channel_detection:
+      method: variance_z  # log-variance z-score
+      threshold_z: 5.0
+      max_bad: 4
+    rereference: average  # average|linked_mastoid|Cz|none
   erp:  # if ERP study
     component: {name}
     time_window: [{start_s}, {end_s}]
@@ -120,9 +129,19 @@ analysis:
     mode: pos|neg
     conditions: [{cond1}, {cond2}]
   statistics:
-    test_type: paired_ttest|rm_anova|permutation
+    test_type: rm_anova  # rm_anova|paired_ttest|permutation
+    posthoc: pairwise_ttest
+    correction: bonferroni  # bonferroni|holm|fdr_bh
     alpha: 0.05
     effect_size: true
+    effect_size_measure: hedges_g  # hedges_g|cohens_d|eta_squared
+    bayes_factor: true  # compute BF10 for null effects
+    sphericity_correction: greenhouse_geisser  # for RM-ANOVA
+  figures:
+    palette: okabe_ito  # colorblind-safe
+    dpi: 300
+    formats: [png, pdf]
+    style: publication  # publication|presentation
 reference:
   paper: "{citation}"
   doi: "{doi}"

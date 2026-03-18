@@ -1,12 +1,14 @@
 ---
 name: setup-replication
-description: Sets up a complete neuroscience replication study from an OpenNeuro dataset. Downloads data via AWS S3, creates folder structure, reads the paper PDF, extracts the analysis pipeline, generates config and documentation, and identifies toolbox gaps. Use when setting up a new replication, preparing a new study, or when the user mentions setup, new replication, or prepare replication.
+description: Sets up a complete neuroscience replication study from an OpenNeuro dataset. Downloads data via AWS S3, creates folder structure, reads the paper PDF, extracts the analysis pipeline, generates config and documentation, creates planning files, and identifies toolbox gaps. Use when setting up a new replication, preparing a new study, or when the user mentions setup, new replication, or prepare replication.
 argument-hint: "[dataset_id] [--demo] [--paper path-or-doi]"
 ---
 
 # Setup Replication Study
 
 Follow each step in order. Do NOT skip steps.
+
+> **Companion skills**: This skill integrates practices from `planning-with-files`, `verification-before-completion`, `scientific-visualization`, and `systematic-debugging`. Use those skills for deeper guidance on any specific aspect.
 
 ## Step 1: Parse Input
 
@@ -19,7 +21,9 @@ If no dataset_id, ask the user.
 
 ---
 
-## Step 2: Create Folder Structure
+## Step 2: Create Folder Structure & Planning Files
+
+### 2a: Directory structure
 
 ```bash
 mkdir -p replications/${DATASET_ID}/references/methods
@@ -27,6 +31,54 @@ mkdir -p replications/${DATASET_ID}/figures
 mkdir -p replications/${DATASET_ID}/results
 mkdir -p replications/${DATASET_ID}/configs
 ```
+
+### 2b: Create planning files (file-based planning methodology)
+
+Create three planning files at the project root (alongside `replications/`):
+
+**`task_plan.md`** — Master task tracker:
+```markdown
+# Task Plan: ${DATASET_ID} Replication
+
+## Phases
+| # | Phase | Status | Notes |
+|---|-------|--------|-------|
+| 1 | Setup & data download | in_progress | |
+| 2 | Paper extraction | pending | |
+| 3 | Preprocessing pipeline | pending | |
+| 4 | Analysis & statistics | pending | |
+| 5 | Visualization | pending | |
+| 6 | Verification & comparison | pending | |
+| 7 | Report generation | pending | |
+
+## Key Decisions
+| Decision | Rationale |
+|----------|-----------|
+
+## Error Log
+| Error | Resolution |
+|-------|------------|
+```
+
+**`findings.md`** — Research findings (updated as results emerge):
+```markdown
+# Findings: ${DATASET_ID} Replication
+
+## Paper Reference Values
+(filled after paper extraction)
+
+## Replication Findings
+(filled after analysis runs)
+```
+
+**`progress.md`** — Session activity log:
+```markdown
+# Progress Log: ${DATASET_ID} Replication
+## Session: $(date +%Y-%m-%d)
+- [ ] Setup started
+```
+
+These files serve as persistent context across sessions and verification evidence.
 
 ---
 
@@ -122,7 +174,27 @@ Generate `replications/{dataset_id}/configs/{dataset_id}_replication.yaml` from 
 
 ---
 
-## Step 8: Summary
+## Step 8: Verify Setup (verification-before-completion)
+
+Before claiming setup is complete, verify each artifact exists and is non-empty:
+
+```bash
+# Verify all generated files exist
+ls -la replications/${DATASET_ID}/references/methods/extracted_pipeline.md
+ls -la replications/${DATASET_ID}/references/methods/required_references.md
+ls -la replications/${DATASET_ID}/configs/${DATASET_ID}_replication.yaml
+ls -la replications/${DATASET_ID}/configs/dataset_info.json
+ls -la task_plan.md findings.md progress.md
+
+# Verify data directory has subjects
+ls data/${DATASET_ID}/ | grep "sub-" | wc -l
+```
+
+Do NOT claim setup is complete unless all files exist and data is validated.
+
+---
+
+## Step 9: Summary
 
 Print:
 
@@ -143,6 +215,9 @@ Files Generated:
   required_references.md
   {dataset_id}_replication.yaml
   dataset_info.json
+  task_plan.md (planning tracker)
+  findings.md (research findings)
+  progress.md (session log)
 
 Gaps: {list critical gaps}
 
@@ -167,3 +242,6 @@ Re-run without --demo for full dataset.
 - ALWAYS flag methods that reference other papers
 - When in doubt: "Not specified in paper — default: {value}"
 - `extracted_pipeline.md` should be detailed enough to implement from alone
+- Update `task_plan.md` after each phase completes
+- Record key findings in `findings.md` as they emerge
+- Log all actions in `progress.md` for reproducibility

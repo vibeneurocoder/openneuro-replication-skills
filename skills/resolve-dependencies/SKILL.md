@@ -15,17 +15,39 @@ numpy, scipy, matplotlib, pandas, mne
 
 Check: `python3 -c "import numpy, scipy, matplotlib, pandas, mne; print('Core OK')"`
 
+## Replication-Essential Dependencies
+
+These packages are needed for most replications (statistics, visualization, data management):
+
+```
+pip install numpy scipy matplotlib pandas mne pingouin statsmodels seaborn
+```
+
+Check all at once:
+```python
+python3 -c "import numpy, scipy, matplotlib, pandas, mne, pingouin, statsmodels, seaborn; print('Replication stack OK')"
+```
+
+| Package | Purpose | Why Essential |
+|---------|---------|---------------|
+| pingouin | RM-ANOVA, effect sizes, Bayes factors | Most neuro papers use RM-ANOVA |
+| statsmodels | Mixed models, advanced regression | Complex experimental designs |
+| seaborn | Statistical plots, violin plots | Publication-quality figures |
+| scipy.io | Load EEGLAB .set/.fdt files | MNE has bugs with some datasets |
+
 ## Analysis-Specific Dependencies
 
 | Analysis Type | Required Packages | Install Command |
 |--------------|-------------------|-----------------|
 | EEG/ERP | mne, scipy, numpy | `pip install mne` |
+| EEG (.set/.fdt fallback) | scipy (scipy.io) | Already in core |
 | fMRI (any) | nibabel, nilearn | `pip install nibabel nilearn` |
 | MVPA/Decoding | scikit-learn, nibabel, nilearn | `pip install scikit-learn nibabel nilearn` |
 | Connectivity | mne-connectivity | `pip install mne-connectivity` |
 | Source localization | mne (with freesurfer) | `pip install mne` |
 | Sleep staging | yasa | `pip install yasa` |
-| Statistics (advanced) | pingouin, statsmodels | `pip install pingouin statsmodels` |
+| Statistics (RM-ANOVA) | pingouin | `pip install pingouin` |
+| Statistics (mixed models) | statsmodels | `pip install statsmodels` |
 | RSA | rsatoolbox | `pip install rsatoolbox` |
 | BCI/Motor imagery | mne, scikit-learn | `pip install mne scikit-learn` |
 | Deep learning decoding | torch, braindecode | `pip install torch braindecode` |
@@ -87,6 +109,14 @@ When a paper mentions a tool/package:
 | MVPA-Light | scikit-learn | Classification, cross-validation |
 | CoSMoMVPA | nilearn.decoding, scikit-learn | MVPA, searchlight |
 | LIBSVM | scikit-learn.svm | SVM classification |
+
+## Known Issues & Workarounds
+
+| Issue | Workaround |
+|-------|-----------|
+| `mne.io.read_raw_eeglab` fails on some .set/.fdt | Use `scipy.io.loadmat(path, squeeze_me=True, struct_as_record=False)` |
+| `pip3` not found | Check for conda: `ls ~/miniconda3/bin/activate` then `source ~/miniconda3/bin/activate && pip install` |
+| Large datasets (>10 GB) | Download EEG-only with `--exclude "*_meg*" --exclude "*.nii*"` |
 
 ## When to Ask the User
 
