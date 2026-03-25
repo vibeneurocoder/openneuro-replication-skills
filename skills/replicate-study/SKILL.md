@@ -1,6 +1,6 @@
 ---
 name: replicate-study
-description: Replicates a neuroscience study from a paper and OpenNeuro dataset — loads data, preprocesses, analyzes, and compares results with the original paper. Integrates verification checkpoints, publication-quality visualization, and systematic debugging for discrepancies. Use when the user wants to replicate, reproduce, or re-run a study analysis.
+description: Replicates a neuroscience study from a paper and OpenNeuro dataset — loads data, preprocesses, analyzes, and compares results with the original paper. Covers EEG (EEGLAB .set, BrainVision .vhdr, EDF), fMRI (NIfTI), and MEG formats with montage templates (10-20, EGI, BioSemi) and brain atlases (AAL, Harvard-Oxford, Schaefer). Integrates MNE-Python, pingouin, nilearn, and scipy pipelines with verification checkpoints and publication-quality visualization. Maps MATLAB toolbox methods (EEGLAB, FieldTrip, SPM) to Python via companion neuroforge skills. Use when the user wants to replicate, reproduce, or re-run a study analysis.
 argument-hint: "[dataset_id]"
 ---
 
@@ -11,6 +11,25 @@ You are an expert neuroscience methods replicator. When the user asks to replica
 > **Tip**: Run `/setup-replication` first to automatically create folders, download data, extract the pipeline, and create planning files.
 >
 > **Companion skills**: This skill integrates practices from `verification-before-completion`, `scientific-visualization`, `systematic-debugging`, and `planning-with-files`. Use those skills for deeper guidance on any specific aspect.
+
+## Reference Documents
+
+This skill has detailed API references for each pipeline domain. Consult them for exact function signatures, parameter tables, pitfalls, and tested code:
+
+| Reference | Domain | Key APIs |
+|-----------|--------|----------|
+| `references/eeg-data-loading.md` | Loading EEG from OpenNeuro | `mne.io.read_raw_eeglab()`, `read_raw_brainvision()`, `scipy.io.loadmat()`, `mne_bids.read_raw_bids()` |
+| `references/preprocessing-pipeline.md` | Filtering, re-referencing, ICA, epoching | `raw.filter()`, `raw.set_eeg_reference()`, `mne.Epochs()`, `mne.preprocessing.ICA()` |
+| `references/erp-analysis.md` | ERP computation and measurement | `epochs.average()`, `evoked.get_peak()`, `mne.grand_average()`, `mne.combine_evoked()` |
+| `references/statistics-and-comparison.md` | Statistical testing and replication comparison | `pingouin.rm_anova()`, `pingouin.ttest()`, `mne.stats.permutation_cluster_test()` |
+| `references/fmri-replication.md` | fMRI GLM, MVPA, connectivity | `FirstLevelModel()`, `SecondLevelModel()`, `Decoder()`, `NiftiMasker()` |
+| `references/publication-figures.md` | Publication-quality figures | `mne.viz.plot_compare_evokeds()`, matplotlib templates, Okabe-Ito palette |
+
+**Assets:**
+- `assets/api-quick-reference.md` — Compact function lookup table for all pipeline stages
+- `assets/openneuro-format-guide.md` — BIDS structure, file formats, download patterns
+
+---
 
 ## Step 1: Read the Paper
 
@@ -28,7 +47,42 @@ Extract from the paper:
 
 **Update `findings.md`** with paper reference values after extraction.
 
-## Step 2: Identify What's Needed
+---
+
+## Step 2: Load the Data
+
+Detect format and choose the correct reader. See `references/eeg-data-loading.md` for full details.
+
+```python
+import mne
+
+# Detect format from file extensions, then load:
+# EEGLAB .set/.fdt (most common on OpenNeuro):
+raw = mne.io.read_raw_eeglab("sub-001/eeg/sub-001_task-N170_eeg.set", preload=True)
+
+# BrainVision .vhdr/.vmrk/.eeg:
+raw = mne.io.read_raw_brainvision("sub-001/eeg/sub-001_task-oddball_eeg.vhdr", preload=True)
+
+# EDF:
+raw = mne.io.read_raw_edf("sub-001/eeg/sub-001_task-rest_eeg.edf", preload=True)
+
+# fMRI NIfTI:
+import nibabel as nib
+img = nib.load("sub-01/func/sub-01_task-localizer_bold.nii.gz")
+```
+
+**Verify after loading:**
+```python
+print(f"Channels: {len(raw.ch_names)}, Sfreq: {raw.info['sfreq']} Hz")
+print(f"Duration: {raw.times[-1]:.1f} s")
+print(f"Channel types: {set(raw.get_channel_types())}")
+```
+
+If `mne.io.read_raw_eeglab()` fails, use `scipy.io.loadmat()` fallback — see `references/eeg-data-loading.md`.
+
+---
+
+## Step 3: Identify What's Needed
 
 For each method step in the paper, determine:
 1. **Is there a Python equivalent?** Map the paper's toolbox to available packages:
@@ -38,32 +92,25 @@ For each method step in the paper, determine:
    - MATLAB custom → write Python equivalent using numpy/scipy
    - R packages → scipy.stats, pingouin, statsmodels
 
-2. **Is the package installed?** Check with:
-   ```python
-   python3 -c "import package_name"
-   ```
+2. **Is the package installed?** Check: `python3 -c "import package_name"`
 
-3. **If not installed**, tell the user:
-   ```
-   pip install package_name
-   ```
-
-4. **If no Python equivalent exists**, either:
-   - Write custom code using numpy/scipy primitives
-   - Ask the user for the cited reference paper that describes the method
-   - Use direct scipy.io / scipy.signal for low-level operations
+3. **If not installed**, tell the user: `pip install package_name`
 
 ### Recommended packages for replication
-| Package | Purpose |
-|---------|---------|
-| numpy, scipy | Core array ops, signal processing, I/O |
-| pandas | Data management, CSV export |
-| matplotlib, seaborn | Visualization (see Step 5b) |
-| mne | EEG/MEG processing (note: scipy.io may be needed for some .set/.fdt files) |
-| pingouin | RM-ANOVA, effect sizes (eta-squared), Bayesian factors |
-| statsmodels | Advanced statistics, mixed models |
+| Package | Purpose | Key Functions |
+|---------|---------|---------------|
+| mne | EEG/MEG processing | `read_raw_eeglab()`, `Epochs()`, `ICA()` |
+| numpy, scipy | Core array ops, signal processing, I/O | `loadmat()`, `sosfiltfilt()` |
+| pandas | Data management, CSV export | `read_csv()`, `DataFrame` |
+| matplotlib | Visualization | `subplots()`, `savefig()` |
+| pingouin | RM-ANOVA, effect sizes, Bayes factors | `rm_anova()`, `ttest()`, `pairwise_tests()` |
+| statsmodels | Advanced statistics, mixed models | `mixedlm()`, `AnovaRM()` |
+| nilearn | fMRI analysis | `FirstLevelModel()`, `Decoder()` |
+| nibabel | NIfTI I/O | `load()`, `save()` |
 
-## Step 3: Resolve References
+---
+
+## Step 4: Resolve References
 
 Papers often say "preprocessing followed Smith et al. (2005)". When you encounter this:
 - Ask the user: "Can you provide Smith et al. 2005 or describe their preprocessing?"
@@ -72,202 +119,134 @@ Papers often say "preprocessing followed Smith et al. (2005)". When you encounte
   - "Delorme & Makeig (2004)" → EEGLAB preprocessing defaults
   - "Oostenveld et al. (2011)" → FieldTrip toolbox
   - "Gramfort et al. (2013)" → MNE-Python
-  - "Maris & Oostenveld (2007)" → cluster-based permutation test
+  - "Maris & Oostenveld (2007)" → cluster-based permutation test (see `references/statistics-and-comparison.md`)
   - "Haxby et al. (2001)" → split-half correlation MVPA
   - "Kriegeskorte et al. (2008)" → representational similarity analysis
 
-## Step 4: Build the Pipeline
+---
 
-Write a standalone Python script (not a notebook) that implements the full pipeline:
+## Step 5: Build the Pipeline
 
-### 4a: Script structure
+Write a standalone Python script that implements the full pipeline. See reference docs for exact API signatures.
+
+### 5a: Preprocessing (match paper exactly)
+
 ```python
-#!/usr/bin/env python3
-"""Replication of {Paper} — {Component}
-Dataset: {dataset_id} from OpenNeuro
-"""
-import os, sys, glob, warnings
-import numpy as np
-import scipy.io, scipy.signal
-import pandas as pd
-import matplotlib
-matplotlib.use('Agg')  # non-interactive backend
-import matplotlib.pyplot as plt
+import mne
 
-# ── Constants from paper ──
-# (all preprocessing parameters as named constants)
+# 1. Load (see references/eeg-data-loading.md for format-specific details)
+raw = mne.io.read_raw_eeglab(fname, preload=True)
 
-# ── Helper functions ──
-# discover_subjects(), load_data(), preprocess(), analyze(), statistics()
+# 2. Set montage (see references/eeg-data-loading.md)
+raw.set_montage("standard_1020", match_case=False, on_missing="warn")
 
-# ── Main pipeline ──
-if __name__ == '__main__':
-    # 1. Discover subjects (exclude non-subject dirs like sub-emptyroom)
-    # 2. Process each subject
-    # 3. Run group statistics
-    # 4. Generate figures
-    # 5. Write report
-    # 6. Verification checkpoint
+# 3. Filter — match paper's Hz exactly (see references/preprocessing-pipeline.md)
+raw.filter(l_freq=0.1, h_freq=30.0)  # "bandpass filtered 0.1–30 Hz"
+
+# 4. Re-reference — match paper (see references/preprocessing-pipeline.md)
+raw.set_eeg_reference(ref_channels="average", projection=False)
+
+# 5. ICA if paper used it (see references/preprocessing-pipeline.md)
+ica = mne.preprocessing.ICA(n_components=15, method="infomax", random_state=42)
+raw_ica = raw.copy().filter(l_freq=1.0, h_freq=None)
+ica.fit(raw_ica, picks="eeg")
+eog_idx, _ = ica.find_bads_eog(raw)
+ica.exclude = eog_idx
+ica.apply(raw)
+
+# 6. Epoch (see references/preprocessing-pipeline.md)
+events, event_id = mne.events_from_annotations(raw)
+epochs = mne.Epochs(raw, events, event_id,
+                    tmin=-0.2, tmax=0.8,
+                    baseline=(-0.2, 0),
+                    reject=dict(eeg=100e-6),
+                    preload=True)
+
+# Verification checkpoint
+print(f"[VERIFY] Kept {len(epochs)} of {len(events)} epochs")
 ```
 
-### 4b: Key implementation patterns (proven in practice)
+### 5b: ERP Analysis (see `references/erp-analysis.md`)
 
-**Data I/O for EEGLAB .set/.fdt files:**
 ```python
-# MNE has known bugs with some .set/.fdt datasets — use scipy.io as fallback
-import scipy.io
-mat = scipy.io.loadmat(set_path, squeeze_me=True, struct_as_record=False)
-eeg = mat['EEG']
-data = eeg.data  # channels × samples
-srate = float(eeg.srate)
+# Condition-specific ERPs
+evoked_face = epochs["face"].average()
+evoked_car = epochs["car"].average()
+
+# Mean amplitude in paper's time window
+def mean_amplitude(evoked, tmin, tmax, picks):
+    data = evoked.copy().pick(picks).get_data()
+    times = evoked.times
+    mask = (times >= tmin) & (times <= tmax)
+    return data[:, mask].mean() * 1e6  # convert V → µV
+
+n170_face = mean_amplitude(evoked_face, 0.150, 0.200, ["P7", "P8"])
+n170_car = mean_amplitude(evoked_car, 0.150, 0.200, ["P7", "P8"])
+print(f"[VERIFY] N170 face: {n170_face:.2f} µV, car: {n170_car:.2f} µV")
 ```
 
-**Filtering (SOS-based, zero-phase):**
-```python
-from scipy.signal import butter, sosfiltfilt
-sos = butter(5, cutoff / (srate/2), btype='low', output='sos')
-filtered = sosfiltfilt(sos, data, axis=1)
-```
+### 5c: Statistics (see `references/statistics-and-comparison.md`)
 
-**Variance-based bad channel detection:**
-```python
-def detect_bad_channels(data, n_eeg, threshold_z=5.0, max_bad=4):
-    variances = np.var(data[:n_eeg], axis=1)
-    log_var = np.log(variances + 1e-10)
-    median_lv = np.median(log_var)
-    mad_lv = np.median(np.abs(log_var - median_lv))
-    if mad_lv < 1e-10:
-        return []
-    z_scores = (log_var - median_lv) / (mad_lv * 1.4826)
-    bad = np.where(np.abs(z_scores) > threshold_z)[0].tolist()
-    if len(bad) > max_bad:
-        bad = sorted(np.argsort(np.abs(z_scores))[::-1][:max_bad].tolist())
-    return bad
-```
-
-**EOG artifact rejection (after baseline correction):**
-```python
-def reject_eog(epoch_bl, heog_idx, veog_idx, threshold_uv=100):
-    """Reject based on absolute amplitude AFTER baseline correction."""
-    heog = epoch_bl[heog_idx]
-    veog = epoch_bl[veog_idx]
-    return np.abs(heog).max() > threshold_uv or np.abs(veog).max() > threshold_uv
-```
-
-**Statistics with pingouin:**
 ```python
 import pingouin as pg
 
-# RM-ANOVA with Greenhouse-Geisser correction
-aov = pg.rm_anova(data=df, dv='amplitude', within='condition', subject='subject')
-# → includes F, p-unc, p-GG-corr, sphericity, eta-squared
+# RM-ANOVA — match paper's design exactly
+aov = pg.rm_anova(data=df, dv="amplitude", within="condition",
+                  subject="subject", effsize="np2")
+print(f"[VERIFY] F({aov['ddof1'][0]},{aov['ddof2'][0]}) = {aov['F'][0]:.2f}, "
+      f"p = {aov['p-unc'][0]:.6f}, ηp² = {aov['np2'][0]:.3f}")
 
-# Pairwise t-tests with Bonferroni correction
-pw = pg.pairwise_tests(data=df, dv='amplitude', within='condition',
-                        subject='subject', padjust='bonf', effsize='hedges')
-# → includes t, p-unc, p-corr, BF10, hedges g
-
-# Bayes Factor for evidence of null (familiarity effects)
-# BF10 < 1/3 = moderate evidence for null
+# Pairwise comparisons
+pw = pg.pairwise_tests(data=df, dv="amplitude", within="condition",
+                       subject="subject", padjust="bonf", effsize="hedges")
 ```
 
-### 4c: Verification checkpoints (embed in script)
+### 5d: fMRI Pipeline (see `references/fmri-replication.md`)
 
-Add verification checkpoints at key stages:
 ```python
-# After preprocessing
-print(f"[VERIFY] {subject}: {n_good}/{n_total} epochs retained "
-      f"({100*n_good/n_total:.0f}%), {len(bad_ch)} bad channels")
+from nilearn.glm.first_level import FirstLevelModel
+import pandas as pd
 
-# After analysis
-print(f"[VERIFY] {subject}: N170 = {amp:.2f} µV @ {lat:.0f} ms")
-
-# After statistics
-print(f"[VERIFY] RM-ANOVA: F({df1},{df2}) = {F:.2f}, p = {p:.6f}")
-print(f"[VERIFY] Faces vs Scrambled: t = {t:.2f}, p = {p:.6f}, d = {d:.2f}")
+events = pd.read_csv("sub-01_task-localizer_events.tsv", sep="\t")
+glm = FirstLevelModel(t_r=2.0, hrf_model="spm", high_pass=1/128,
+                       smoothing_fwhm=6.0, noise_model="ar1")
+glm.fit(func_img, events=events)
+z_map = glm.compute_contrast("face - house", output_type="z_score")
 ```
 
-**Update `task_plan.md`** status after each phase completes.
+---
 
-## Step 5: Handle Novel Methods
-
-### 5a: Method resolution
-If the paper uses a method not in standard packages:
-
-1. **Check if it's a combination of existing primitives**
-   - e.g., "time-frequency connectivity" = compute_tfr + compute_correlation_matrix
-
-2. **Write custom code** using numpy/scipy:
-   ```python
-   # Example: custom method
-   from scipy.stats import spearmanr
-   r, p = spearmanr(x, y)
-   ```
-
-3. **Ask the user** if you can't figure out the method from the paper description
-
-### 5b: Publication-quality figures (scientific-visualization)
-
-All figures MUST follow these standards:
+## Step 6: Figures (see `references/publication-figures.md`)
 
 **Color palette — Okabe-Ito (colorblind-safe):**
 ```python
-OKABE_ITO = {
-    'Famous': '#D55E00',      # Vermillion
-    'Unfamiliar': '#0072B2',  # Blue
-    'Scrambled': '#009E73',   # Bluish green
-    'Faces': '#E69F00',       # Orange
-}
+COLORS = {"Face": "#0072B2", "Car": "#D55E00", "Diff": "#009E73"}
+```
+
+**ERP waveform plot:**
+```python
+fig = mne.viz.plot_compare_evokeds(
+    {"Face": evoked_face, "Car": evoked_car},
+    picks=["P7", "P8"], combine="mean",
+    colors={"Face": "#0072B2", "Car": "#D55E00"},
+    invert_y=True, show=False,
+)
+fig[0].savefig("figures/n170_erp.png", dpi=300, bbox_inches="tight")
 ```
 
 **Figure requirements:**
-- 300 DPI minimum for all raster output
-- Vector formats (PDF) preferred for line art
-- Sans-serif fonts (Arial/Helvetica), 7-9pt axis labels
-- Remove top/right spines (`ax.spines['top'].set_visible(False)`)
-- Error bars: SEM with shaded bands for waveforms, specify in caption
-- Multi-panel figures with bold letter labels (A, B, C)
-- Save both PNG (300 DPI) and PDF
+- 300 DPI minimum
+- Colorblind-safe palette (Okabe-Ito)
+- Negative up for ERP waveforms
+- Panel labels (A, B, C) in bold
+- Both PNG (300 DPI) and PDF saved
 
-**Grand average ERP figure template:**
-```python
-fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+---
 
-# Panel A: Grand average waveforms with SEM bands
-ax = axes[0]
-for cond, color in OKABE_ITO.items():
-    ax.plot(times_ms, mean_erp[cond], color=color, linewidth=1.5, label=cond)
-    ax.fill_between(times_ms,
-                    mean_erp[cond] - sem_erp[cond],
-                    mean_erp[cond] + sem_erp[cond],
-                    color=color, alpha=0.2)
-ax.invert_yaxis()  # EEG convention: negative up
-ax.axhline(0, color='gray', linewidth=0.5)
-ax.axvline(0, color='gray', linewidth=0.5, linestyle='--')
-ax.set_xlabel('Time (ms)')
-ax.set_ylabel('Amplitude (µV)')
-ax.legend(frameon=False)
-ax.text(-0.12, 1.05, 'A', transform=ax.transAxes, fontsize=12, fontweight='bold')
+## Step 7: Run and Compare
 
-# Panel B: Bar chart with individual data points
-ax = axes[1]
-# ... bar plot with significance markers ...
-ax.text(-0.12, 1.05, 'B', transform=ax.transAxes, fontsize=12, fontweight='bold')
+### 7a: Execute and verify
 
-for ax in axes:
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-plt.tight_layout()
-fig.savefig('figures/grand_average_n170.png', dpi=300, bbox_inches='tight')
-fig.savefig('figures/grand_average_n170.pdf', bbox_inches='tight')
-```
-
-## Step 6: Run and Compare
-
-### 6a: Execute and verify
-
-Run the script and verify output:
 ```bash
 python3 replications/${DATASET_ID}/replicate_*.py 2>&1 | tee results/run_log.txt
 ```
@@ -276,11 +255,19 @@ python3 replications/${DATASET_ID}/replicate_*.py 2>&1 | tee results/run_log.txt
 - Check that results CSV was written and has expected N subjects
 - Check that figures were saved
 - Check that all statistical tests produced valid p-values
-- Read the terminal output for any warnings or errors
 
-### 6b: Compare against paper
+### 7b: Compare against paper
 
-After running the analysis, compare against the paper values recorded in `findings.md`:
+After running, compare against paper values in `findings.md`:
+
+```python
+# Quantitative comparison (see references/statistics-and-comparison.md)
+comparisons = [
+    {"metric": "N170 face (µV)", "ours": n170_face, "paper": -4.8},
+    {"metric": "N170 peak (ms)", "ours": peak_lat, "paper": 168},
+    {"metric": "ηp²", "ours": eta_sq, "paper": 0.78},
+]
+```
 
 | Metric | Threshold | Interpretation |
 |--------|-----------|----------------|
@@ -290,7 +277,7 @@ After running the analysis, compare against the paper values recorded in `findin
 | Effect size within 50% | Partial replication |
 | Effect size >50% different | Investigate discrepancies |
 
-### 6c: Investigate discrepancies (systematic-debugging)
+### 7c: Investigate discrepancies (systematic-debugging)
 
 If results diverge from the paper, apply systematic debugging:
 
@@ -304,84 +291,47 @@ If results diverge from the paper, apply systematic debugging:
    - Sample differences (N subjects, which subjects excluded)
 
 2. **Trace data flow** — Pick one subject and verify each step:
-   - Raw data loaded correctly? (check scales, units)
+   - Raw data loaded correctly? (check scales, units — MNE uses volts, papers use µV)
    - Filtering applied correctly? (check frequency response)
    - Epochs extracted at correct times? (check event alignment)
    - Artifact rejection rates reasonable? (compare with paper)
-   - Baseline correction window correct?
 
-3. **Document in findings.md** — Record discrepancies with evidence:
-   ```markdown
-   ### Discrepancies
-   - Our rejection rates higher for sub-003 (84%) vs paper max 153 trials
-     → Investigated: genuine noise in this subject, paper may have excluded
-   - Paper used 16/19 subjects; we used 18 (all except sub-emptyroom)
-   ```
+3. **Document in findings.md** — Record discrepancies with evidence.
 
 4. **Do NOT adjust parameters to force-match paper values** — Document honest differences.
 
-### 6d: Generate replication report
-
-Write `replications/${DATASET_ID}/replication_report.md` with:
-- Methods summary (what we did)
-- Results table (our values vs paper values)
-- Statistical tests with full output
-- Replication verdict per finding
-- Discrepancy analysis
-- Figures referenced
-
-### 6e: Update planning files
+### 7d: Update planning files
 
 After completing analysis:
 - Mark phases complete in `task_plan.md`
 - Record final results in `findings.md`
 - Log session actions in `progress.md`
 
-## Available Tools
-
-### Direct scipy/numpy approach (recommended for .set/.fdt files)
-- `scipy.io.loadmat` — Load EEGLAB .set files
-- `scipy.signal.butter/sosfiltfilt` — Butterworth filtering
-- `scipy.stats` — Basic statistical tests
-- `numpy` — Array operations, epoch extraction
-
-### MNE-Python (when it works with the dataset)
-- `mne.io.read_raw_eeglab` — Load EEGLAB files
-- `mne.Epochs` — Epoch management
-- `mne.filter` — Filtering
-- `mne.Evoked` — ERP computation
-
-### Statistics packages
-- `pingouin` — RM-ANOVA, pairwise tests, effect sizes, Bayes factors
-- `statsmodels` — Mixed models, advanced regression
-- `scipy.stats` — t-tests, correlations, basic tests
-
-### Visualization
-- `matplotlib` — Core plotting, multi-panel figures
-- `seaborn` — Statistical plots, violin plots, heatmaps
+---
 
 ## OpenNeuro Data Access
 
-All datasets are public on AWS S3:
-```bash
-aws s3 sync s3://openneuro.org/{dataset_id}/ ./data/{dataset_id}/ --no-sign-request
-```
+All datasets are public on AWS S3. See `assets/openneuro-format-guide.md` for full details.
 
-For EEG-only datasets, exclude non-EEG modalities:
 ```bash
+# Full download
+aws s3 sync s3://openneuro.org/{dataset_id}/ ./data/{dataset_id}/ --no-sign-request
+
+# Demo (2 subjects)
 aws s3 sync s3://openneuro.org/{dataset_id}/ ./data/{dataset_id}/ \
-    --no-sign-request \
-    --exclude "*_meg*" --exclude "*_bold*" --exclude "*/anat/*" \
-    --exclude "*.fif" --exclude "*.fif.gz" --exclude "*.nii*"
+    --no-sign-request --exclude "sub-*"
+aws s3 sync s3://openneuro.org/{dataset_id}/sub-001/ ./data/{dataset_id}/sub-001/ --no-sign-request
+aws s3 sync s3://openneuro.org/{dataset_id}/sub-002/ ./data/{dataset_id}/sub-002/ --no-sign-request
 ```
 
 ## Key Datasets
 
 | ID | Study | Modality | Analysis |
 |----|-------|----------|----------|
-| ds003645 | Wakeman & Henson 2015 | EEG (75ch, 1100Hz) | N170 face perception |
-| ds000117 | Wakeman & Henson 2015 | EEG/MEG/fMRI | Face processing (multi-modal) |
 | ds003645 | Kappenman et al. 2021 (ERP CORE) | EEG 30ch 1024Hz | N170, P300, N400, MMN, ERN |
 | ds000105 | Haxby et al. 2001 | fMRI | MVPA object decoding |
+| ds000117 | Wakeman & Henson 2015 | EEG/MEG/fMRI | Face processing (multi-modal) |
+| ds004621 | Dzianok et al. 2022 | EEG 127ch 1000Hz | P300 auditory oddball |
+| ds006480 | Kim et al. 2025 | EEG 65ch 1000Hz | Auditory oddball with arousal |
 | ds003061 | Cahn et al. 2012 | EEG | P300 auditory oddball |
 | ds000246 | Jas et al. 2018 | MEG | Auditory M100 |

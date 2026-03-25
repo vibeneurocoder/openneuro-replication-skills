@@ -1,6 +1,6 @@
 ---
 name: setup-replication
-description: Sets up a complete neuroscience replication study from an OpenNeuro dataset. Downloads data via AWS S3, creates folder structure, reads the paper PDF, extracts the analysis pipeline, generates config and documentation, creates planning files, and identifies toolbox gaps. Use when setting up a new replication, preparing a new study, or when the user mentions setup, new replication, or prepare replication.
+description: Sets up a complete neuroscience replication study from an OpenNeuro dataset. Downloads data via AWS S3, creates folder structure, reads the paper PDF, extracts the analysis pipeline, generates config and documentation, creates planning files, and identifies toolbox gaps. Covers EEG (EEGLAB, BrainVision, EDF), fMRI (NIfTI), and MEG datasets with BIDS validation. Use when setting up a new replication, preparing a new study, or when the user mentions setup, new replication, or prepare replication.
 argument-hint: "[dataset_id] [--demo] [--paper path-or-doi]"
 ---
 
@@ -9,6 +9,14 @@ argument-hint: "[dataset_id] [--demo] [--paper path-or-doi]"
 Follow each step in order. Do NOT skip steps.
 
 > **Companion skills**: This skill integrates practices from `planning-with-files`, `verification-before-completion`, `scientific-visualization`, and `systematic-debugging`. Use those skills for deeper guidance on any specific aspect.
+
+## Reference Documents
+
+| Reference | Purpose |
+|-----------|---------|
+| `references/toolbox-capabilities.md` | Gap analysis: what's built-in vs needs external packages |
+| `references/openneuro-data-access.md` | AWS S3 download patterns, BIDS validation, dataset metadata extraction |
+| `assets/templates.md` | File templates for extracted_pipeline, config YAML, dataset_info JSON |
 
 ## Step 1: Parse Input
 
