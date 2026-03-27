@@ -64,29 +64,56 @@ Every reference doc provides:
 | **analyze-paper** | `/analyze-paper paper.pdf` | Extract complete methodology from a paper (DOI, URL, or PDF) and map every step to Python |
 | **resolve-dependencies** | `/resolve-dependencies` | Detect, install, and resolve Python dependencies with MATLAB → Python function mapping |
 
-## How It Works — Self-Contained with Optional Companions
+## How to Use
 
-**These skills work standalone.** All methodology (planning, verification, visualization, debugging) is written directly into the skill files — no other skills are required.
-
-The practices were originally learned from two companion skill collections. We integrated the best parts into the replication skills so you don't need to install them separately:
-
-### Optional: Academic-Forge (workflow methodology)
-
-By [@HughYau](https://github.com/HughYau/AcademicForge) — a collection of workflow skills that bundles contributions from multiple authors:
-- **superpowers** (by [@obra](https://github.com/obra/superpowers)) — verification-before-completion, systematic-debugging, executing-plans
-- **planning-with-files** (by [@OthmanAdi](https://github.com/OthmanAdi/planning-with-files)) — file-based planning with task_plan.md
-- **scientific-visualization** — publication figure standards
-- **AI-research-SKILLs** (by [@zechenzhangAGI](https://github.com/zechenzhangAGI/AI-research-SKILLs) / Orchestra Research) — research workflow skills
-- **claude-scientific-skills** (by [K-Dense-AI](https://github.com/K-Dense-AI/claude-scientific-skills)) — 140+ scientific domain skills
+### Quick Start
 
 ```bash
-# Optional: install for full reference docs
+# 1. Install the replication skills
+git clone https://github.com/vibeneurocoder/openneuro-replication-skills.git
+cd openneuro-replication-skills && bash install.sh /path/to/your/project
+
+# 2. Install companion skills (workflow methodology + domain API reference)
 git clone https://github.com/HughYau/AcademicForge.git
+cp -r AcademicForge/.opencode/skills/academic-forge/* YOUR_PROJECT/.claude/skills/
+
+git clone https://github.com/HughYau/neuroforge-skills.git
+cp -r neuroforge-skills/skills/* YOUR_PROJECT/.claude/skills/
+
+# 3. Set up a replication (downloads data, reads paper, generates docs)
+> /setup-replication ds003645
+
+# 4. Extract methods from the paper
+> /analyze-paper replications/ds003645/references/paper.pdf
+
+# 5. Check and install dependencies
+> /resolve-dependencies
+
+# 6. Run the full replication
+> /replicate-study ds003645
 ```
 
-### Optional: NeuroForge Skills (domain API reference)
+### Companion Skill Collections
 
-By [@HughYau](https://github.com/HughYau/neuroforge-skills) — neuroscience library API documentation built with the [OpenSci-Skill](https://github.com/HughYau/opensci-skill) framework:
+These replication skills are part of a broader ecosystem. For full functionality, install the companion collections:
+
+#### Academic-Forge (workflow methodology)
+
+By [@HughYau](https://github.com/HughYau/AcademicForge) — provides the engineering discipline practices used throughout the replication workflow: verification checkpoints, systematic debugging, file-based planning, and scientific visualization standards. Bundles contributions from multiple authors (see [Acknowledgements](#acknowledgements)).
+
+```bash
+git clone https://github.com/HughYau/AcademicForge.git
+cp -r AcademicForge/.opencode/skills/academic-forge/* YOUR_PROJECT/.claude/skills/
+```
+
+#### NeuroForge Skills (domain API reference)
+
+By [@HughYau](https://github.com/HughYau/neuroforge-skills) — detailed API documentation for neuroscience libraries built with the [OpenSci-Skill](https://github.com/HughYau/opensci-skill) framework. Provides exact function signatures, parameter tables, and tested code snippets. The MATLAB toolbox skills (SPM12, EEGLAB, FieldTrip) are especially useful — most neuroscience papers describe their methods in MATLAB terms, and these skills help the AI map paper methods to Python equivalents.
+
+```bash
+git clone https://github.com/HughYau/neuroforge-skills.git
+cp -r neuroforge-skills/skills/* YOUR_PROJECT/.claude/skills/
+```
 
 | Skill | Library | Coverage |
 |-------|---------|----------|
@@ -98,13 +125,6 @@ By [@HughYau](https://github.com/HughYau/neuroforge-skills) — neuroscience lib
 | **spm12** | SPM12 (MATLAB) | fMRI GLM, VBM, EEG source reconstruction, DCM, batch scripting |
 | **eeglab** | EEGLAB (MATLAB) | EEG data import, filtering, ICA, epoching, ERP, time-frequency, STUDY |
 | **fieldtrip** | FieldTrip (MATLAB) | MEG/EEG preprocessing, TF analysis, source reconstruction, connectivity, cluster permutation |
-
-The MATLAB toolbox skills (SPM12, EEGLAB, FieldTrip) are especially useful for replication — most neuroscience papers describe their methods in MATLAB terms. These skills provide exact function signatures and cfg parameter tables so the AI can map paper methods to Python equivalents.
-
-```bash
-# Optional: install for API reference
-git clone https://github.com/HughYau/neuroforge-skills.git
-```
 
 ## Installation
 
@@ -158,7 +178,7 @@ YOUR_PROJECT/.claude/skills/
         └── package-api-mapping.md
 ```
 
-## Usage
+## Usage Examples
 
 ```
 # Full setup — downloads ALL subjects into data/
@@ -245,6 +265,29 @@ See the [`examples/`](examples/) directory for full execution logs covering EEG 
 | P300 under arousal | ds006480 (EGI HydroCel) | Tested (setup) |
 | MMN (mismatch negativity) | ds003645 (MMN task) | Planned |
 | fMRI MVPA | ds000105 | Tested (setup) |
+
+## Acknowledgements
+
+This project builds on work from several open-source skill collections and their authors.
+
+### Companion Skill Authors
+
+- **[@HughYau](https://github.com/HughYau)** — [Academic-Forge](https://github.com/HughYau/AcademicForge) (curated academic workflow skills), [NeuroForge Skills](https://github.com/HughYau/neuroforge-skills) (neuroscience library API documentation for MNE-Python, nilearn, SpikeInterface, Brian2, pyNIBS, SPM12, EEGLAB, FieldTrip), and [OpenSci-Skill](https://github.com/HughYau/opensci-skill) (the framework for generating symbol indices and API docs)
+- **[@obra](https://github.com/obra)** — [superpowers](https://github.com/obra/superpowers) — verification-before-completion, systematic-debugging, executing-plans, and other engineering discipline skills
+- **[@OthmanAdi](https://github.com/OthmanAdi)** — [planning-with-files](https://github.com/OthmanAdi/planning-with-files) — file-based task planning methodology (task_plan.md, findings.md, progress.md)
+- **[@zechenzhangAGI](https://github.com/zechenzhangAGI) / [Orchestra AI](https://github.com/orchestra-ai)** — [AI-research-SKILLs](https://github.com/zechenzhangAGI/AI-research-SKILLs) — research workflow skills for AI/ML development and training pipelines
+- **[K-Dense-AI](https://github.com/K-Dense-AI)** — [claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills) — 140+ scientific domain skills covering bioinformatics, cheminformatics, clinical research, and more
+
+### Practices Integrated
+
+| Practice | Origin | Where It's Used |
+|----------|--------|----------------|
+| File-based planning | planning-with-files | `setup-replication` Step 2b — creates `task_plan.md`, `findings.md`, `progress.md` |
+| Verification-before-completion | superpowers | `setup-replication` Step 8, `replicate-study` Step 7a — no completion claims without evidence |
+| Scientific visualization standards | Academic-Forge | `replicate-study` Step 6 — Okabe-Ito palette, 300 DPI, multi-panel figures |
+| Systematic debugging | superpowers | `replicate-study` Step 7c — root-cause analysis for result discrepancies |
+| Method-to-code mapping | NeuroForge Skills | `analyze-paper` and `resolve-dependencies` — MATLAB → Python function mapping |
+| Research workflow patterns | Orchestra AI / AI-research-SKILLs | Structured approach to literature review, experiment tracking, and reproducibility |
 
 ## License
 
